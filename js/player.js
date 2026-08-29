@@ -21,9 +21,11 @@ class Channel {
     this.moveDir = dir;
   }
 
-  // Tek seferlik dokunma/tık için anlık adım
-  nudge(dir) {
-    this._move(dir, 0.09);
+  /* Dokunmatik sürükleme: kanalı doğrudan verilen x'e taşır. */
+  setX(x) {
+    const w = this.getFieldWidth();
+    this.moveDir = 0;
+    this.x = Math.min(Math.max(x, this.radius), Math.max(this.radius, w - this.radius));
   }
 
   update(dt) {

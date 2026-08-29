@@ -203,19 +203,24 @@ class ParticleSpawner {
     this.easyMode = !!easyMode;
   }
 
-  // Zaman bazlı zorluk kademeleri
+  /* Zaman bazlı zorluk kademeleri (120 saniyelik oyun, 5 x 24 sn).
+
+     Hız belirgin biçimde YAVAŞ başlar (50 px/sn) ve kademe kademe
+     artarak son kademede 165 px/sn'ye ulaşır — bu, eski 5 dakikalık
+     sürümün en yüksek hızıdır, yani oyun hiçbir zaman eskisinden
+     hızlı akmaz; sadece oraya daha kısa sürede varır. */
   getDifficulty(elapsedSeconds) {
     const t = this.easyMode ? elapsedSeconds * 0.6 : elapsedSeconds;
-    if (t < 60) {
-      return { spawnInterval: 2.6, speed: 70, maxConcurrent: 1, tier: 'KOLAY' };
-    } else if (t < 120) {
-      return { spawnInterval: 2.1, speed: 95, maxConcurrent: 2, tier: 'ORTA' };
-    } else if (t < 180) {
-      return { spawnInterval: 1.7, speed: 115, maxConcurrent: 2, tier: 'ORTA-ZOR' };
-    } else if (t < 240) {
-      return { spawnInterval: 1.35, speed: 140, maxConcurrent: 3, tier: 'ZOR' };
+    if (t < 24) {
+      return { spawnInterval: 2.9, speed: 50, maxConcurrent: 1, tier: 'ISINMA' };
+    } else if (t < 48) {
+      return { spawnInterval: 2.4, speed: 75, maxConcurrent: 2, tier: 'KOLAY' };
+    } else if (t < 72) {
+      return { spawnInterval: 2.0, speed: 100, maxConcurrent: 2, tier: 'ORTA' };
+    } else if (t < 96) {
+      return { spawnInterval: 1.6, speed: 130, maxConcurrent: 3, tier: 'ZOR' };
     }
-    return { spawnInterval: 1.05, speed: 165, maxConcurrent: 3, tier: 'ÇOK ZOR' };
+    return { spawnInterval: 1.3, speed: 165, maxConcurrent: 3, tier: 'ÇOK ZOR' };
   }
 
   /* Ağırlıklı seçim + aynı maddenin arka arkaya tekrarını engelleme. */

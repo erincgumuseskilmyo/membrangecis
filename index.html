@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>Membrane Run — Hücre Zarını Yönet</title>
 <meta name="description" content="Laborant ve Veteriner Sağlık önlisans öğrencileri için hücre zarı taşıma mekanizmaları eğitim oyunu." />
-<link rel="stylesheet" href="style.css?v=2" />
+<link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 <div id="app">
@@ -19,7 +19,7 @@
       </div>
       <h1 class="game-title">MEMBRANE RUN</h1>
       <p class="game-subtitle">HÜCRE ZARINI YÖNET</p>
-      <p class="game-desc">5 dakika boyunca hücre zarına gelen maddeleri doğru taşıma mekanizmalarıyla geçir.</p>
+      <p class="game-desc">2 dakika boyunca hücre zarına gelen maddeleri doğru taşıma mekanizmalarıyla geçir.</p>
 
       <div class="player-form">
         <label>AD SOYAD
@@ -44,7 +44,7 @@
       <div class="start-buttons">
         <button id="btn-start" class="btn btn-primary">BAŞLA</button>
         <button id="btn-howto" class="btn btn-secondary">NASIL OYNANIR</button>
-        <button id="btn-mechanisms" class="btn btn-secondary">MEKANİZMALAR</button>
+        <button id="btn-tutorial" class="btn btn-secondary">MEKANİZMA TANITIMI</button>
         <button id="btn-leaderboard" class="btn btn-secondary">SKOR TABLOSU</button>
       </div>
       <button id="btn-credits" class="link-btn" type="button">Görsel ve ses kaynakları</button>
@@ -57,11 +57,12 @@
     <div class="modal-card">
       <h2>NASIL OYNANIR</h2>
       <ol class="howto-list">
-        <li><span class="howto-key">◀ ▶</span> ile <strong>kanalı</strong> sağa/sola hareket ettir.</li>
-        <li><span class="howto-key">▲ ▼</span> ile <strong>taşıma mekanizmasını</strong> değiştir; ya da <span class="howto-key">1</span>–<span class="howto-key">6</span> tuşlarıyla / üstteki şeritten doğrudan seç.</li>
+        <li><strong>Dokunmatik:</strong> parmağını oyun alanında sürükleyerek <strong>kanalı</strong> kaydır; <strong>zara dokununca</strong> mekanizma değişir.</li>
+        <li><strong>Klavye:</strong> <span class="howto-key">◀ ▶</span> kanalı hareket ettirir, <span class="howto-key">▲ ▼</span> mekanizmayı değiştirir.</li>
+        <li>Üstteki <strong>mekanizma şeridine</strong> tıklayarak ya da <span class="howto-key">1</span>–<span class="howto-key">6</span> tuşlarıyla doğrudan seçebilirsin.</li>
         <li>Gelen maddenin <strong>doğru mekanizmasını</strong> seç.</li>
         <li><strong>Kanalı</strong> maddenin hizasına getir.</li>
-        <li>5 dakikada <strong>en yüksek skoru</strong> yap.</li>
+        <li>2 dakikada <strong>en yüksek skoru</strong> yap.</li>
       </ol>
       <h3 class="sub-head">PUANLAMA</h3>
       <ul class="howto-list plain">
@@ -76,12 +77,53 @@
     </div>
   </div>
 
-  <!-- ============ MECHANISMS MODAL ============ -->
-  <div id="modal-mechanisms" class="modal hidden">
-    <div class="modal-card">
-      <h2>TAŞIMA MEKANİZMALARI</h2>
-      <ul id="mechanism-list" class="mechanism-list"></ul>
-      <button class="btn btn-primary modal-close" data-close="modal-mechanisms">KAPAT</button>
+  <!-- ============ TUTORIAL (mekanizma tanıtımı) ============ -->
+  <div id="modal-tutorial" class="modal hidden">
+    <div class="modal-card tut-card">
+      <div class="tut-head">
+        <span class="tut-kicker">TAŞIMA MEKANİZMALARI</span>
+        <span id="tut-step" class="tut-step">1 / 7</span>
+      </div>
+      <div id="tut-dots" class="tut-dots"></div>
+
+      <div id="tut-stage" class="tut-stage">
+        <canvas id="tut-canvas"></canvas>
+      </div>
+
+      <h3 id="tut-title" class="tut-title">BASİT DİFÜZYON</h3>
+      <span id="tut-energy" class="tut-energy">ENERJİ GEREKTİRMEZ</span>
+      <p id="tut-info" class="tut-info"></p>
+      <p id="tut-subs" class="tut-subs"></p>
+      <span id="tut-points" class="tut-points">+20 puan</span>
+
+      <div id="tut-controls" class="tut-controls hidden">
+        <div class="tut-ctrl-row">
+          <span class="tut-ctrl-icon">👆</span>
+          <span><strong>Parmağını sürükle</strong> — kanal parmağını takip eder.</span>
+        </div>
+        <div class="tut-ctrl-row">
+          <span class="tut-ctrl-icon">👇</span>
+          <span><strong>Zara dokun</strong> — sıradaki taşıma mekanizmasına geçer.</span>
+        </div>
+        <div class="tut-ctrl-row">
+          <span class="tut-ctrl-icon">🎯</span>
+          <span>Üstteki <strong>renkli şeritten</strong> istediğin mekanizmayı doğrudan seç.</span>
+        </div>
+        <div class="tut-ctrl-row">
+          <span class="tut-ctrl-icon">⌨️</span>
+          <span>Klavyede <strong>◀ ▶</strong> kanalı, <strong>▲ ▼</strong> mekanizmayı değiştirir; <strong>1–6</strong> doğrudan seçer.</span>
+        </div>
+        <div class="tut-ctrl-row">
+          <span class="tut-ctrl-icon">⏱️</span>
+          <span>Süre <strong>2 dakika</strong>. Yavaş başlar, kademe kademe hızlanır.</span>
+        </div>
+      </div>
+
+      <div class="tut-nav">
+        <button id="tut-prev" class="btn btn-secondary tut-btn">◀ GERİ</button>
+        <button id="tut-next" class="btn btn-primary tut-btn">İLERİ ▶</button>
+      </div>
+      <button id="tut-skip" class="link-btn">Tanıtımı atla</button>
     </div>
   </div>
 
@@ -142,7 +184,7 @@
       </div>
       <div class="hud-item hud-time">
         <span class="hud-label">SÜRE</span>
-        <span id="hud-time" class="hud-value">05:00</span>
+        <span id="hud-time" class="hud-value">02:00</span>
       </div>
       <button id="btn-music-game" class="icon-btn music-toggle" aria-label="Müzik aç/kapat">♪</button>
       <button id="btn-sound-game" class="icon-btn sound-toggle" aria-label="Ses aç/kapat">🔊</button>
@@ -164,18 +206,6 @@
       <div id="learn-badge" class="learn-badge hidden">ÖĞRENME MODU</div>
     </div>
 
-    <div id="mobile-controls" class="mobile-controls">
-      <div class="control-group control-left" aria-label="Kanal kontrolü">
-        <button id="btn-left" class="ctrl-btn" aria-label="Kanalı sola hareket ettir">◀</button>
-        <span class="control-caption">KANAL</span>
-        <button id="btn-right" class="ctrl-btn" aria-label="Kanalı sağa hareket ettir">▶</button>
-      </div>
-      <div class="control-group control-right" aria-label="Taşıma mekanizması kontrolü">
-        <button id="btn-up" class="ctrl-btn" aria-label="Önceki taşıma mekanizması">▲</button>
-        <span class="control-caption">TAŞIMA</span>
-        <button id="btn-down" class="ctrl-btn" aria-label="Sonraki taşıma mekanizması">▼</button>
-      </div>
-    </div>
   </section>
 
   <!-- ============ PAUSE OVERLAY ============ -->
@@ -223,7 +253,7 @@
         </div>
         <div class="result-item wide">
           <span class="result-label">TOPLAM SÜRE</span>
-          <span id="res-duration" class="result-value">05:00</span>
+          <span id="res-duration" class="result-value">02:00</span>
         </div>
       </div>
 
@@ -249,16 +279,17 @@
 
 </div>
 
-<script src="js/config.js?v=2"></script>
-<script src="js/assets.js?v=2"></script>
-<script src="js/audio.js?v=2"></script>
-<script src="js/timer.js?v=2"></script>
-<script src="js/transport.js?v=2"></script>
-<script src="js/particle.js?v=2"></script>
-<script src="js/player.js?v=2"></script>
-<script src="js/score.js?v=2"></script>
-<script src="js/leaderboard.js?v=2"></script>
-<script src="js/ui.js?v=2"></script>
-<script src="js/game.js?v=2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/assets.js?v=3"></script>
+<script src="js/audio.js?v=3"></script>
+<script src="js/timer.js?v=3"></script>
+<script src="js/transport.js?v=3"></script>
+<script src="js/particle.js?v=3"></script>
+<script src="js/player.js?v=3"></script>
+<script src="js/score.js?v=3"></script>
+<script src="js/leaderboard.js?v=3"></script>
+<script src="js/tutorial.js?v=3"></script>
+<script src="js/ui.js?v=3"></script>
+<script src="js/game.js?v=3"></script>
 </body>
 </html>

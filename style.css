@@ -247,7 +247,9 @@ button {
   width: min(94vw, 440px);
   max-height: 86vh;
   overflow-y: auto;
-  background: var(--panel);
+  /* Arkadaki ekranın okunurluğu bozmaması için panelden daha opak */
+  background: rgba(11, 29, 44, 0.97);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
   padding: 26px 24px;
@@ -389,19 +391,23 @@ button {
 /* ---------- Game screen ---------- */
 
 #screen-game {
-  padding: 10px 10px 0;
-  gap: 8px;
+  /* Ok tuşu butonları kaldırıldığı için oyun alanı ekranın
+     neredeyse tamamını kaplar: oyuncu gelen maddeyi çok daha
+     erken görür. */
+  padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+  gap: 5px;
 }
 
 .hud-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  padding: 8px 10px;
+  border-radius: 12px;
+  padding: 5px 8px;
   flex-wrap: nowrap;
+  flex: none;
 }
 
 .hud-item {
@@ -474,8 +480,11 @@ button {
 
 .game-field {
   position: relative;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+  /* parmak sürüklemesi sayfayı kaydırmasın */
+  touch-action: none;
+  cursor: grab;
   border-radius: 16px;
   overflow: hidden;
   background: linear-gradient(180deg, #0d2438 0%, #0a1c2b 55%, #0a1826 100%);
@@ -559,67 +568,6 @@ button {
   }
 }
 
-/* ---------- Mobile controls ---------- */
-
-.mobile-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 6px calc(12px + env(safe-area-inset-bottom));
-  gap: 12px;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 18px;
-  padding: 10px 12px;
-}
-
-.control-right {
-  flex-direction: column;
-}
-
-.control-caption {
-  font-family: var(--font-display);
-  font-size: 9.5px;
-  letter-spacing: 1.5px;
-  color: var(--ink-40);
-  font-weight: 700;
-}
-
-.ctrl-btn {
-  width: 58px;
-  height: 58px;
-  border-radius: 16px;
-  border: 1px solid rgba(244, 248, 251, 0.18);
-  background: rgba(244, 248, 251, 0.09);
-  color: var(--ink-100);
-  font-size: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  touch-action: none;
-}
-
-.ctrl-btn:active,
-.ctrl-btn.pressed {
-  background: var(--membrane-gold);
-  color: #1a1000;
-  transform: scale(0.94);
-}
-
-/* Desktop: hide big touch controls, rely on keyboard */
-@media (hover: hover) and (pointer: fine) {
-  .mobile-controls {
-    opacity: 0.55;
-  }
-}
-
 /* ---------- Pause ---------- */
 
 #screen-pause .modal-card {
@@ -673,11 +621,6 @@ button {
 }
 
 @media (max-width: 380px) {
-  .ctrl-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 19px;
-  }
   .game-title {
     font-size: 26px;
   }
@@ -949,80 +892,6 @@ button {
   line-height: 1.6;
 }
 
-.mechanism-list {
-  list-style: none;
-  margin: 0 0 18px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-
-.mechanism-item {
-  --chip-color: var(--ink-60);
-  border-left: 3px solid var(--chip-color);
-  background: rgba(244, 248, 251, 0.05);
-  border-radius: 0 10px 10px 0;
-  padding: 9px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.mechanism-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.mechanism-key {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 10px;
-  color: var(--chip-color);
-  border: 1px solid var(--chip-color);
-  border-radius: 5px;
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-}
-
-.mechanism-name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 12px;
-  color: var(--chip-color);
-  flex: 1;
-  line-height: 1.25;
-}
-
-.mechanism-energy {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--ink-40);
-  border: 1px solid rgba(244, 248, 251, 0.16);
-  border-radius: 6px;
-  padding: 1px 5px;
-  flex: none;
-}
-
-.mechanism-info {
-  font-size: 12px;
-  color: var(--ink-60);
-  line-height: 1.45;
-}
-
-.mechanism-subs {
-  font-size: 11px;
-  color: var(--ink-40);
-  line-height: 1.45;
-}
-
 /* ---------- Sonuç ekranı dökümü ---------- */
 
 .breakdown-list {
@@ -1126,35 +995,6 @@ button {
     max-width: 780px;
     margin-left: auto;
     margin-right: auto;
-  }
-}
-
-/* Fare + klavye varsa büyük dokunmatik butonlar yer kaplamasın */
-@media (hover: hover) and (pointer: fine) {
-  .mobile-controls {
-    opacity: 0.5;
-    padding: 8px 6px;
-    gap: 8px;
-  }
-  .control-group {
-    padding: 6px 8px;
-    gap: 6px;
-    border-radius: 14px;
-  }
-  .control-right {
-    flex-direction: row;
-  }
-  .ctrl-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-    font-size: 15px;
-  }
-  .control-caption {
-    font-size: 8.5px;
-  }
-  .mobile-controls:hover {
-    opacity: 1;
   }
 }
 
@@ -1308,4 +1148,211 @@ button {
   color: var(--warn);
   font-style: normal;
   font-weight: 600;
+}
+
+
+/* ============================================================
+   MEKANİZMA TANITIMI (tutorial)
+============================================================ */
+
+.tut-card {
+  width: min(94vw, 430px);
+  max-height: 92vh;
+  text-align: center;
+}
+
+.tut-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tut-kicker {
+  font-family: var(--font-display);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: var(--ink-40);
+}
+
+.tut-step {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-40);
+}
+
+.tut-dots {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.tut-dot {
+  width: 100%;
+  max-width: 34px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(244, 248, 251, 0.14);
+  transition: background 0.2s ease;
+}
+
+.tut-dot.is-done {
+  background: rgba(244, 248, 251, 0.35);
+}
+
+.tut-dot.is-active {
+  background: var(--membrane-gold);
+}
+
+.tut-stage {
+  position: relative;
+  height: 190px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0d2438 0%, #0a1c2b 60%, #0a1826 100%);
+  border: 1px solid rgba(244, 248, 251, 0.08);
+  margin-bottom: 14px;
+}
+
+#tut-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tut-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.4px;
+  margin: 0 0 8px;
+  line-height: 1.25;
+}
+
+.tut-energy {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  padding: 2px 8px;
+  margin-bottom: 10px;
+}
+
+.tut-info {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-100);
+  margin: 0 0 8px;
+}
+
+.tut-subs {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-40);
+  margin: 0 0 8px;
+}
+
+.tut-points {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.tut-controls {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 6px;
+}
+
+.tut-ctrl-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-60);
+}
+
+.tut-ctrl-row strong {
+  color: var(--ink-100);
+}
+
+.tut-ctrl-icon {
+  font-size: 17px;
+  line-height: 1.2;
+  flex: none;
+  width: 22px;
+  text-align: center;
+}
+
+.tut-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.tut-btn {
+  flex: 1;
+}
+
+.tut-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#tut-skip {
+  margin-top: 10px;
+}
+
+/* Kısa ekranlarda tanıtım kartı kaydırmaya gerek kalmadan sığsın */
+@media (max-height: 780px) {
+  .tut-card {
+    padding: 18px 18px 16px;
+  }
+  .tut-stage {
+    height: 150px;
+    margin-bottom: 10px;
+  }
+  .tut-dots {
+    margin-bottom: 10px;
+  }
+  .tut-title {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .tut-info {
+    font-size: 12.5px;
+    margin-bottom: 6px;
+  }
+  .tut-nav {
+    margin-top: 12px;
+  }
+  .tut-controls {
+    gap: 8px;
+  }
+  .tut-ctrl-row {
+    font-size: 12px;
+  }
+}
+
+@media (max-height: 560px) {
+  .tut-stage {
+    height: 108px;
+  }
+  .tut-subs,
+  .tut-points {
+    display: none;
+  }
 }

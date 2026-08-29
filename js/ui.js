@@ -12,11 +12,9 @@ class UIManager {
     this.gameMode = 'exam'; // 'exam' | 'learn'
     this._cacheDom();
     this._buildModeRail();
-    this._buildMechanismList();
     this._bindStaticEvents();
     this._bindKeyboard();
-    this._bindTouchControls();
-    this._bindSwipe();
+    this._bindFieldPointer();
     this.syncSoundIcons();
     this.setAssetsReady(false);
   }
@@ -30,7 +28,7 @@ class UIManager {
         results: $('screen-results'),
       },
       modalHowto: $('modal-howto'),
-      modalMechanisms: $('modal-mechanisms'),
+      modalTutorial: $('modal-tutorial'),
       modalCredits: $('modal-credits'),
       modalLeaderboard: $('modal-leaderboard'),
       screenPause: $('screen-pause'),
@@ -42,7 +40,7 @@ class UIManager {
 
       btnStart: $('btn-start'),
       btnHowto: $('btn-howto'),
-      btnMechanisms: $('btn-mechanisms'),
+      btnTutorial: $('btn-tutorial'),
       btnCredits: $('btn-credits'),
       btnLeaderboard: $('btn-leaderboard'),
       btnResume: $('btn-resume'),
@@ -59,11 +57,6 @@ class UIManager {
       btnModeLearn: $('btn-mode-learn'),
       assetStatus: $('asset-status'),
 
-      btnLeft: $('btn-left'),
-      btnRight: $('btn-right'),
-      btnUp: $('btn-up'),
-      btnDown: $('btn-down'),
-
       hudScore: $('hud-score'),
       hudAtp: $('hud-atp'),
       hudCombo: $('hud-combo'),
@@ -77,7 +70,6 @@ class UIManager {
       gameField: $('game-field'),
       toastLayer: $('toast-layer'),
 
-      mechanismList: $('mechanism-list'),
       leaderboardStatus: $('leaderboard-status'),
       leaderboardSource: $('leaderboard-source'),
       leaderboardList: $('leaderboard-list'),
@@ -122,28 +114,6 @@ class UIManager {
     });
   }
 
-  _buildMechanismList() {
-    const list = this.el.mechanismList;
-    if (!list) return;
-    const substances = {};
-    Object.values(PARTICLE_DEFS).forEach((d) => {
-      (substances[d.correctMechanism] = substances[d.correctMechanism] || []).push(d.label);
-    });
-    list.innerHTML = '';
-    TRANSPORT_MODES.forEach((mode, i) => {
-      const li = document.createElement('li');
-      li.className = 'mechanism-item';
-      li.style.setProperty('--chip-color', mode.color);
-      li.innerHTML =
-        `<span class="mechanism-head"><span class="mechanism-key">${i + 1}</span>` +
-        `<span class="mechanism-name">${this._escape(mode.label)}</span>` +
-        `<span class="mechanism-energy">${this._escape(mode.energy)}</span></span>` +
-        `<span class="mechanism-info">${this._escape(mode.info)}</span>` +
-        `<span class="mechanism-subs">${this._escape((substances[mode.id] || []).join(' · '))}</span>`;
-      list.appendChild(li);
-    });
-  }
-
   /* ---------------- Screens & modals ---------------- */
 
   showScreen(name) {
@@ -163,7 +133,7 @@ class UIManager {
   get anyModalOpen() {
     return [
       this.el.modalHowto,
-      this.el.modalMechanisms,
+      this.el.modalTutorial,
       this.el.modalCredits,
       this.el.modalLeaderboard,
       this.el.screenPause,
@@ -485,7 +455,7 @@ class UIManager {
 
     click(this.el.btnStart, () => this.cb.onStart());
     click(this.el.btnHowto, () => this.openModal(this.el.modalHowto));
-    click(this.el.btnMechanisms, () => this.openModal(this.el.modalMechanisms));
+    click(this.el.btnTutorial, () => this.cb.onTutorial());
     click(this.el.btnCredits, () => this.openModal(this.el.modalCredits));
     click(this.el.btnLeaderboard, () => this.cb.onRequestLeaderboard());
     click(this.el.btnViewLeaderboard, () => this.cb.onRequestLeaderboard());
@@ -576,99 +546,80 @@ class UIManager {
     });
   }
 
-  /* ---------------- Touch buttons (hold-to-repeat) ---------------- */
+  /* ---------------- Dokunmatik / fare: sürükle ve dokun ----------------
 
-  _bindTouchControls() {
-    this._bindHold(this.el.btnLeft, () => this.cb.onMoveDir(-1), () => this.cb.onMoveDir(0));
-    this._bindHold(this.el.btnRight, () => this.cb.onMoveDir(1), () => this.cb.onMoveDir(0));
-    this._bindRepeatPress(this.el.btnUp, () => this.cb.onTransportChange(-1));
-    this._bindRepeatPress(this.el.btnDown, () => this.cb.onTransportChange(1));
-  }
+     Ok tuşu butonları kaldırıldı; yerine doğrudan manipülasyon geldi:
+       - Oyun alanında parmağını (veya fareyi) SÜRÜKLE  -> kanal takip eder
+       - ZARA kısa dokun                                -> sıradaki mekanizma
+       - Zar dışına kısa dokun                          -> kanal oraya gider
 
-  _bindHold(btn, onDown, onUp) {
-    const start = (e) => {
-      e.preventDefault();
-      btn.classList.add('pressed');
-      onDown();
-    };
-    const end = (e) => {
-      if (e) e.preventDefault();
-      btn.classList.remove('pressed');
-      onUp();
-    };
-    btn.addEventListener('pointerdown', start);
-    btn.addEventListener('pointerup', end);
-    btn.addEventListener('pointerleave', end);
-    btn.addEventListener('pointercancel', end);
-  }
-
-  _bindRepeatPress(btn, action) {
-    let timeout = null;
-    let interval = null;
-    const start = (e) => {
-      e.preventDefault();
-      btn.classList.add('pressed');
-      action();
-      timeout = setTimeout(() => {
-        interval = setInterval(action, 420);
-      }, 480);
-    };
-    const stop = (e) => {
-      if (e) e.preventDefault();
-      btn.classList.remove('pressed');
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-    btn.addEventListener('pointerdown', start);
-    btn.addEventListener('pointerup', stop);
-    btn.addEventListener('pointerleave', stop);
-    btn.addEventListener('pointercancel', stop);
-  }
-
-  /* ---------------- Swipe (destekleyici kontrol) ---------------- */
-
-  _bindSwipe() {
+     Sürükleme ile dokunmayı ayırmak için küçük bir eşik kullanılır:
+     10 px'den az hareket + 400 ms'den kısa temas = dokunma. */
+  _bindFieldPointer() {
     const field = this.el.gameField;
+    if (!field) return;
+
+    const TAP_MOVE = 10;
+    const TAP_MS = 400;
+    let pid = null;
+    let moved = false;
     let startX = 0;
     let startY = 0;
-    let startedInLeftHalf = true;
-    let active = false;
+    let startT = 0;
 
-    field.addEventListener(
-      'touchstart',
-      (e) => {
-        if (e.touches.length !== 1) return;
-        const t = e.touches[0];
-        const rect = field.getBoundingClientRect();
-        startX = t.clientX;
-        startY = t.clientY;
-        startedInLeftHalf = t.clientX - rect.left < rect.width / 2;
-        active = true;
-      },
-      { passive: true }
-    );
+    const xRatio = (e) => {
+      const r = field.getBoundingClientRect();
+      return (e.clientX - r.left) / Math.max(1, r.width);
+    };
+    const yRatio = (e) => {
+      const r = field.getBoundingClientRect();
+      return (e.clientY - r.top) / Math.max(1, r.height);
+    };
 
-    field.addEventListener(
-      'touchend',
-      (e) => {
-        if (!active) return;
-        active = false;
-        const t = e.changedTouches[0];
-        const dx = t.clientX - startX;
-        const dy = t.clientY - startY;
-        const THRESHOLD = 36;
-
-        if (startedInLeftHalf) {
-          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > THRESHOLD) {
-            this.cb.onNudge(dx > 0 ? 1 : -1);
-          }
-        } else {
-          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > THRESHOLD) {
-            this.cb.onTransportChange(dy > 0 ? 1 : -1);
-          }
+    field.addEventListener('pointerdown', (e) => {
+      if (e.button != null && e.button > 0) return;
+      pid = e.pointerId;
+      moved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      startT = Date.now();
+      if (field.setPointerCapture) {
+        try {
+          field.setPointerCapture(e.pointerId);
+        } catch {
+          /* yakalanamazsa normal olay akışı yeterli */
         }
-      },
-      { passive: true }
-    );
+      }
+      e.preventDefault();
+    });
+
+    field.addEventListener('pointermove', (e) => {
+      if (pid === null || e.pointerId !== pid) return;
+      if (!moved) {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.sqrt(dx * dx + dy * dy) > TAP_MOVE) moved = true;
+      }
+      if (moved) {
+        this.cb.onDragTo(xRatio(e));
+        e.preventDefault();
+      }
+    });
+
+    const end = (e) => {
+      if (pid === null || e.pointerId !== pid) return;
+      const wasTap = !moved && Date.now() - startT < TAP_MS;
+      pid = null;
+      if (!wasTap) return;
+      if (this.cb.isOnMembrane(yRatio(e))) {
+        this.cb.onTransportChange(1);
+      } else {
+        this.cb.onDragTo(xRatio(e));
+      }
+    };
+    field.addEventListener('pointerup', end);
+    field.addEventListener('pointercancel', () => {
+      pid = null;
+    });
   }
 }

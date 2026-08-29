@@ -101,17 +101,17 @@ process.on('unhandledRejection', (err) => {
 const scripts = [
   'js/config.js', 'js/assets.js', 'js/audio.js', 'js/timer.js', 'js/transport.js',
   'js/particle.js', 'js/player.js', 'js/score.js', 'js/leaderboard.js',
-  'js/ui.js', 'js/game.js',
+  'js/tutorial.js', 'js/ui.js', 'js/game.js',
 ];
 
 const exposeForTest = `
-;window.__test = { PARTICLE_DEFS, Particle, TRANSPORT_MODES, Timer };
+;window.__test = { PARTICLE_DEFS, Particle, TRANSPORT_MODES, Timer, TutorialManager };
 `;
 const combined =
   scripts.map((s) => fs.readFileSync(path.join(root, s), 'utf8')).join('\n;\n') +
   exposeForTest;
 window.eval(combined);
-const { PARTICLE_DEFS, Particle, TRANSPORT_MODES } = window.__test;
+const { PARTICLE_DEFS, Particle, TRANSPORT_MODES, TutorialManager } = window.__test;
 
 window.document.dispatchEvent(new window.Event('DOMContentLoaded', { bubbles: true, cancelable: true }));
 
@@ -124,9 +124,33 @@ setTimeout(() => {
     // Simulate filling the form & starting the game
     doc.getElementById('input-name').value = 'Test Öğrenci';
     doc.getElementById('input-studentno').value = '12345';
-    doc.getElementById('btn-start').click();
 
+    // İlk oyunda önce mekanizma tanıtımı açılmalı
+    window.localStorage.removeItem('membraneRun.tutorialSeen');
+    doc.getElementById('btn-start').click();
+    if (doc.getElementById('modal-tutorial').classList.contains('hidden')) {
+      throw new Error('İlk oyunda mekanizma tanıtımı açılmadı');
+    }
+    if (game.state === 'countdown') throw new Error('Tanıtım gösterilmeden oyun başladı');
+
+    // Tanıtımda tüm adımlar ileri gidebilmeli, son adım oyunu başlatmalı
+    const totalSteps = game.tutorial.totalSteps;
+    if (totalSteps !== TRANSPORT_MODES.length + 1) {
+      throw new Error('Tanıtım adım sayısı beklenenden farklı: ' + totalSteps);
+    }
+    for (let i = 0; i < totalSteps; i++) doc.getElementById('tut-next').click();
+    if (!doc.getElementById('modal-tutorial').classList.contains('hidden')) {
+      throw new Error('Tanıtım son adımdan sonra kapanmadı');
+    }
+    if (!TutorialManager.seen) throw new Error('Tanıtım "görüldü" olarak işaretlenmedi');
     if (game.state !== 'countdown') throw new Error('Oyun countdown durumuna geçmedi: ' + game.state);
+
+    // Tanıtım görüldükten sonra tekrar oynayınca doğrudan başlamalı
+    game.state = 'start';
+    doc.getElementById('btn-start').click();
+    if (game.state !== 'countdown') {
+      throw new Error('Tanıtım görüldükten sonra oyun doğrudan başlamadı: ' + game.state);
+    }
 
     // fast-forward past countdown
     game.state = 'playing';
@@ -146,6 +170,21 @@ setTimeout(() => {
     window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
     if (game.state !== 'paused') throw new Error('ESC ile duraklatma çalışmadı: ' + game.state);
     game.resume();
+
+    // dokunmatik: sürükleme kanalı taşımalı, zar hizası doğru bilinmeli
+    game.handleDragTo(0.25);
+    const expectedX = 0.25 * game.fieldWidth;
+    if (Math.abs(game.channel.x - expectedX) > game.channel.radius + 1) {
+      throw new Error('Sürükleme kanalı taşımadı: ' + game.channel.x + ' != ' + expectedX);
+    }
+    game.handleDragTo(999); // sınır dışı istek alanda kalmalı
+    if (game.channel.x > game.fieldWidth - game.channel.radius + 0.01) {
+      throw new Error('Kanal alan dışına çıktı: ' + game.channel.x);
+    }
+    if (!game.isOnMembrane(game.membraneY / game.fieldHeight)) {
+      throw new Error('Zar hizası tanınmadı');
+    }
+    if (game.isOnMembrane(0.02)) throw new Error('Zar dışı nokta zar sanıldı');
 
     // force a particle through success + wrong + missed paths
     const waterDef = PARTICLE_DEFS.water;
@@ -207,6 +246,8 @@ setTimeout(() => {
         process.exit(1);
       } else {
         console.log('SMOKE TEST OK');
+        console.log('süre:', game.timer.totalSeconds + ' sn',
+          '| hız kademeleri:', [0, 24, 48, 72, 96].map((t) => game.spawner.getDifficulty(t).speed).join('→'));
         console.log('score:', game.score.score, 'correct:', game.score.correctCount,
           'wrong:', game.score.wrongCount, 'missed:', game.score.missedCount,
           'atp:', game.score.atp, 'isabet: %' + game.score.accuracy);

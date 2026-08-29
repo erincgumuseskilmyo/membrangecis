@@ -28,7 +28,7 @@ class LeaderboardManager {
     this.isOnlineConfigured = !!(
       SUPABASE_CONFIG.url &&
       SUPABASE_CONFIG.anonKey &&
-      /^https:\/\/.+\.supabase\.co\/?$/.test(SUPABASE_CONFIG.url.trim())
+      /^https:\/\/[^/]+\.supabase\.co(\/.*)?$/i.test(SUPABASE_CONFIG.url.trim())
     );
     this.online = typeof navigator === 'undefined' ? true : navigator.onLine;
     this.lastSource = 'local'; // 'online' | 'local'
@@ -37,8 +37,13 @@ class LeaderboardManager {
     window.addEventListener('offline', () => (this.online = false));
   }
 
+  /* Supabase paneli "Data API URL"i bazen /rest/v1/ ekiyle kopyalatır.
+     İstek yolunu kendimiz kurduğumuz için proje köküne indiriyoruz. */
   get baseUrl() {
-    return SUPABASE_CONFIG.url.trim().replace(/\/+$/, '');
+    return SUPABASE_CONFIG.url
+      .trim()
+      .replace(/\/+$/, '')
+      .replace(/\/rest\/v1$/i, '');
   }
 
   get headers() {

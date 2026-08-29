@@ -1,6 +1,6 @@
 # MEMBRANE RUN — Hücre Zarını Yönet
 
-Laborant ve Veteriner Sağlık önlisans öğrencileri için 5 dakikalık,
+Laborant ve Veteriner Sağlık önlisans öğrencileri için 2 dakikalık,
 tarayıcı tabanlı hücre zarı taşıma mekanizmaları eğitim/arcade oyunu.
 
 > **Oyunu internete koymak ve ortak skor tablosunu açmak için:**
@@ -84,8 +84,9 @@ ikisi de yoksa oyun sistem fontlarına ve offline moda düşer.
         config.js       -> TEK AYAR DOSYASI (Supabase + sınıf kodu)
         assets.js       -> asset yönetimi + tüm canvas çizimleri
                            (MoleculeArt, ChannelArt, MembraneArt)
+        tutorial.js     -> oyun öncesi mekanizma tanıtımı (7 adım)
         audio.js        -> wav efektleri + üretimsel arka plan müziği
-        timer.js        -> 300 saniyelik geri sayım
+        timer.js        -> 120 saniyelik geri sayım
         transport.js    -> 6 taşıma mekanizması tanımı
         particle.js     -> madde tanımları + ağırlıklı spawn sistemi
         player.js       -> oyuncunun kanalı (yatay hareket)
@@ -97,14 +98,31 @@ ikisi de yoksa oyun sistem fontlarına ve offline moda düşer.
         CREDITS.md      -> kaynak ve lisans listesi
         molecules/  membrane/  sfx/  channels/  effects/  ui/
     test/
-        smoke.js        -> otomatik mantık testi (bkz. bölüm 9)
+        smoke.js        -> otomatik mantık testi (bkz. bölüm 10)
 ```
 
 ---
 
 ## 3. KONTROLLER
 
-**Masaüstü (klavye):**
+**Mobil / dokunmatik — doğrudan manipülasyon:**
+
+| Hareket | Etki |
+|---|---|
+| Oyun alanında **parmağını sürükle** | Kanal parmağını takip eder |
+| **Zara dokun** | Sıradaki taşıma mekanizmasına geçer |
+| Zar dışına dokun | Kanal dokunulan noktaya gider |
+| Üstteki **mekanizma şeridine** dokun | O mekanizmayı doğrudan seçer |
+
+Ok tuşu butonları kaldırıldı. Sebebi iki yönlü: (1) parmağı kanalın
+üstünde tutmak, ekranın altındaki butonlara bakmaktan çok daha hızlı ve
+doğal; (2) butonların kapladığı yer oyun alanına eklendiğinde oyuncu
+gelen maddeyi çok daha erken görüyor.
+
+Sürükleme ile dokunma 10 px / 400 ms eşiğiyle ayrılır: zar üzerinde
+sürüklerken yanlışlıkla mekanizma değişmez.
+
+**Masaüstü (klavye + fare):**
 | Tuş | Etki |
 |---|---|
 | ← / → | Kanalı sola / sağa hareket ettirir |
@@ -112,13 +130,7 @@ ikisi de yoksa oyun sistem fontlarına ve offline moda düşer.
 | 1 – 6 | Mekanizmayı doğrudan seçer |
 | ESC veya P | Duraklat / devam et |
 
-**Mobil / dokunmatik:**
-- Sol alt: ◀ ▶ büyük butonlar → kanal (basılı tutunca sürekli hareket)
-- Sağ alt: ▲ ▼ büyük butonlar → mekanizma değişimi
-- Üstteki **mekanizma şeridindeki** altı kutucuktan birine dokunarak
-  doğrudan seçim
-- Ek olarak: oyun alanının sol yarısında yatay swipe = kanal, sağ
-  yarısında dikey swipe = mekanizma
+Fareyle de sürükleme ve tıklama aynı şekilde çalışır.
 
 Oyun, sekme arka plana geçtiğinde veya pencere odağı kaybettiğinde
 kendiliğinden duraklar.
@@ -163,13 +175,46 @@ Bu liste oyun içinde **MEKANİZMALAR** ekranından da görülebilir.
 Skor asla 0'ın altına düşmez. ATP 0'a düşse bile oyun bitmez; ATP
 burada tamamen eğitimsel geri bildirimdir.
 
-Zorluk 0–60 / 60–120 / 120–180 / 180–240 / 240–300 saniye
-kademelerinde spawn sıklığını, madde hızını ve eşzamanlı madde
-sayısını artırır. Aktif kademe HUD'da (KOLAY … ÇOK ZOR) gösterilir.
+Oyun **120 saniye** sürer ve 24 saniyelik beş kademeye bölünür:
+
+| Süre | Kademe | Madde hızı | Aynı anda |
+|---|---|---|---|
+| 0–24 sn | ISINMA | 50 px/sn | 1 |
+| 24–48 sn | KOLAY | 75 px/sn | 2 |
+| 48–72 sn | ORTA | 100 px/sn | 2 |
+| 72–96 sn | ZOR | 130 px/sn | 3 |
+| 96–120 sn | ÇOK ZOR | 165 px/sn | 3 |
+
+Hız belirgin biçimde yavaş başlar; en yüksek kademedeki 165 px/sn,
+önceki 5 dakikalık sürümün de en yüksek hızıydı — yani oyun hiçbir
+zaman eskisinden hızlı akmaz, sadece oraya daha kısa sürede varır.
+Aktif kademe HUD'ın sağ üstünde gösterilir.
+
+Oyun alanı ekran yüksekliğinin yaklaşık **%80'ini** kaplar ve zar
+merkezin biraz altındadır (%60); maddelerin 8'inden 7'si yukarıdan
+geldiği için bu, karar vermek için en uzun yolu bırakır.
 
 ---
 
-## 6. OYUN MODLARI
+## 6. MEKANİZMA TANITIMI
+
+Oyuncu **ilk kez** oynadığında (ve öğrenme modunu her seçtiğinde) oyun
+başlamadan önce 7 adımlık bir tanıtım açılır: altı mekanizma tek tek,
+"İLERİ" diyerek anlatılır, son adımda kontroller özetlenir.
+
+Her adımda mekanizmanın **oyundaki gerçek kanal görseli** canlı olarak
+çizilir ve o mekanizmayla geçen madde animasyonla zardan geçirilir —
+öğrenci oyunda göreceği şeyi birebir tanır. Adımda ayrıca mekanizmanın
+adı, ATP gerektirip gerektirmediği, tanımı, o yolla geçen maddeler ve
+puanı yazar.
+
+Tanıtım bir kez tamamlandığında (veya atlandığında) `localStorage`'a
+işaretlenir ve sonraki oyunlarda otomatik açılmaz. Başlangıç ekranındaki
+**MEKANİZMA TANITIMI** düğmesiyle istendiği zaman tekrar açılabilir.
+
+---
+
+## 7. OYUN MODLARI
 
 **DEĞERLENDİRME MODU** (varsayılan)
 İpucu yok, tam hız, skor liderlik tablosuna işlenir.
@@ -187,7 +232,7 @@ dökümünü**, isabet oranını ve en çok hata yapılan mekanizma için bir
 
 ---
 
-## 7. ORTAK SKOR TABLOSU
+## 8. ORTAK SKOR TABLOSU
 
 Skor tablosunun iki çalışma biçimi vardır ve oyun hangisinde olduğunu
 ekranda **açıkça söyler** — hiçbir zaman sahte biçimde "online tablo
@@ -228,7 +273,7 @@ KURULUM.md sonundaki gizlilik notu.
 
 ---
 
-## 8. SES
+## 9. SES
 
 - **Efektler:** `assets/sfx/` içindeki 10 kısa CC0 wav dosyası
   (doğru, yanlış, kaçırma, ATP, combo, mekanizma değişimi, geri
@@ -241,7 +286,7 @@ KURULUM.md sonundaki gizlilik notu.
 
 ---
 
-## 9. TEST
+## 10. TEST
 
 ```bash
 npm install jsdom
@@ -276,6 +321,18 @@ yalnızca en iyi skorunun listelenmesi, oyuncunun kendi satırının
 vurgulanması, "sınıfta kaçıncısın" satırı ve imkânsız skorun CHECK
 kısıtıyla reddedilmesi (HTTP 400).
 
+Ayrıca test şunları doğrular: süre 120 saniye, hız kademeleri
+50→75→100→130→165, ilk oyunda tanıtımın açılması, yedi adımın
+tamamlanınca oyunun başlaması, tanıtım görüldükten sonra doğrudan
+başlaması, sürüklemenin kanalı taşıması (ve alan dışına taşmaması) ile
+zar hizasının doğru tanınması.
+
+Sürükle/dokun kontrolleri ayrıca gerçek tarayıcıda, gerçek
+`PointerEvent`'lerle uçtan uca denendi: sürükleme kanalı parmağa
+taşıyor, zara dokunma mekanizmayı değiştirip kanalı yerinde bırakıyor,
+zar dışına dokunma kanalı oraya taşıyıp mekanizmayı değiştirmiyor ve
+zar üzerinde sürüklerken mekanizma yanlışlıkla değişmiyor.
+
 **Gerçek bir Supabase projesine karşı test edilmedi** — hesap
 açılmasını gerektirdiği için. KURULUM.md'deki adımları uyguladıktan
 sonra 1.5'teki kontrolü yapmanız yeterlidir. Gerçek dokunmatik cihazda
@@ -283,10 +340,17 @@ parmak kontrolü de elle test edilmelidir.
 
 ---
 
-## 10. BU SÜRÜMDE DÜZELTİLEN ÖNEMLİ HATA
+## 11. BU SÜRÜMDE DÜZELTİLEN ÖNEMLİ HATALAR
 
 Oyun ekranı `display:none` iken canvas ölçülüyordu; BAŞLA'dan sonra
 yeniden ölçülmediği için oyun alanı **1×1 piksel** kalıyor ve hiçbir
 şey görünmüyordu (yalnızca pencere yeniden boyutlandırılırsa
 düzeliyordu). `handleStart()` artık ekranı gösterdikten hemen sonra
 `_resize()` çağırıyor.
+
+**Çift kurulum koruması.** `DOMContentLoaded` iki kez tetiklenirse (ya da
+script yanlışlıkla iki kez yüklenirse) ikinci bir `Game` örneği oluşuyor,
+aynı düğmelere ikinci bir dinleyici bağlanıyor ve her tıklama iki kez
+işleniyordu. Tanıtım eklenince bu, "BAŞLA"ya basınca tanıtımın açılıp
+oyunun da aynı anda başlaması olarak ortaya çıktı. Artık `game.js`
+ikinci örneğin oluşmasını engelliyor.

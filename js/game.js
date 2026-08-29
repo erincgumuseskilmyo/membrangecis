@@ -4,7 +4,9 @@
    ve tüm oyun alanı çizimi.
 ============================================================ */
 
-const GAME_SECONDS = 300;
+/* Oyun süresi. 2 dakika: bir ders saatinde sınıfça birkaç tur
+   oynanabilsin diye kısa tutuldu. */
+const GAME_SECONDS = 120;
 
 class Game {
   constructor() {
@@ -21,6 +23,7 @@ class Game {
     this.spawner = new ParticleSpawner(() => this.fieldWidth);
     this.timer = new Timer(GAME_SECONDS, (r) => this.onTick(r), () => this.onTimeUp());
     this.leaderboard = new LeaderboardManager();
+    this.tutorial = new TutorialManager(this.assets, this.audio);
 
     this.particles = [];
     this.effects = [];
@@ -44,7 +47,9 @@ class Game {
         onRequestLeaderboard: () => this.openLeaderboard(),
         onRefreshBoard: () => this.refreshResultsBoard(),
         onMoveDir: (dir) => this.channel.setDirection(dir),
-        onNudge: (dir) => this.channel.nudge(dir * 3),
+        onDragTo: (ratio) => this.handleDragTo(ratio),
+        isOnMembrane: (ratio) => this.isOnMembrane(ratio),
+        onTutorial: () => this.openTutorial(),
         onTransportChange: (dir) => this.handleTransportChange(dir),
         onTransportSelect: (index) => this.handleTransportSelect(index),
         onMusicEnabled: () => {
@@ -81,7 +86,10 @@ class Game {
     this.canvas.style.width = this.fieldWidth + 'px';
     this.canvas.style.height = this.fieldHeight + 'px';
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this.membraneY = Math.round(this.fieldHeight * 0.5);
+    // Maddelerin 8'inden 7'si yukarıdan geldiği için zar merkezin
+    // biraz altında: oyuncu geleni daha erken görür ve daha uzun
+    // süre karar verebilir.
+    this.membraneY = Math.round(this.fieldHeight * 0.6);
     this.bandHalf = Math.max(18, Math.min(32, this.fieldHeight * 0.05));
 
     if (this.channel.x === 0) {
@@ -96,7 +104,34 @@ class Game {
 
   /* ---------------- State transitions ---------------- */
 
+  /* İlk kez oynayan (veya öğrenme modunu seçen) oyuncuya önce
+     mekanizma tanıtımını gösterir; sonra turu başlatır. */
   handleStart() {
+    const needsTutorial = !TutorialManager.seen || this.ui.gameMode === 'learn';
+    if (needsTutorial && !this.tutorial.isOpen) {
+      this.tutorial.open(() => this._beginRound());
+      return;
+    }
+    this._beginRound();
+  }
+
+  openTutorial() {
+    this.tutorial.open(null);
+  }
+
+  handleDragTo(ratio) {
+    if (this.state !== 'playing') return;
+    this.channel.setX(ratio * this.fieldWidth);
+  }
+
+  /* Dokunulan nokta zar bandının üstünde mi? (mekanizma değiştirme bölgesi) */
+  isOnMembrane(yRatio) {
+    if (!this.fieldHeight) return false;
+    const y = yRatio * this.fieldHeight;
+    return Math.abs(y - this.membraneY) <= this.bandHalf * 2.6;
+  }
+
+  _beginRound() {
     this.player = this.ui.getPlayerInfo();
     this.gameMode = this.ui.gameMode;
     this.leaderboard.savePlayer(this.player.name, this.player.studentNo);
@@ -126,10 +161,12 @@ class Game {
     this._resize();
     this.channel.reset();
 
+    this.hintUntil = 0;
     this.state = 'countdown';
     this.ui.runCountdown(() => {
       if (this.state !== 'countdown') return; // kullanıcı ana menüye dönmüş olabilir
       this.state = 'playing';
+      this.hintUntil = this.timer.totalSeconds - 7; // ilk 7 saniye ipucu
       this.timer.start();
       this.audio.startMusic();
     });
@@ -417,6 +454,7 @@ class Game {
 
     this._drawChannel(ctx, t);
     this._drawEffects(ctx);
+    this._drawControlHint(ctx, w, h);
 
     ctx.restore();
   }
@@ -615,6 +653,30 @@ class Game {
     ctx.restore();
   }
 
+  /* Turun ilk saniyelerinde dokunmatik kontrol hatırlatması. */
+  _drawControlHint(ctx, w, h) {
+    if (this.state !== 'playing' || this.timer.remaining <= this.hintUntil) return;
+    const left = this.timer.remaining - this.hintUntil;
+    const alpha = Math.min(1, left / 2);
+    const lines = ['Parmağını sürükle → kanal', 'Zara dokun → mekanizma değişir'];
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.9;
+    ctx.font = '700 11px Poppins, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const width = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 26;
+    const y = this.membraneY + this.bandHalf + 46;
+    ctx.fillStyle = 'rgba(8, 22, 34, 0.72)';
+    Draw.roundRect(ctx, w / 2 - width / 2, y - 20, width, 40, 12);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(244,248,251,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(244,248,251,0.85)';
+    lines.forEach((l, i) => ctx.fillText(l, w / 2, y - 8 + i * 16));
+    ctx.restore();
+  }
+
   _drawEffects(ctx) {
     for (const fx of this.effects) {
       const p = Math.min(1, fx.t / fx.life);
@@ -658,5 +720,10 @@ class Game {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Çift kurulum koruması: script yanlışlıkla iki kez yüklenirse ya da
+  // DOMContentLoaded iki kez tetiklenirse ikinci bir Game örneği
+  // oluşmasın — aynı düğmelere iki dinleyici bağlanır ve her tıklama
+  // iki kez işlenirdi.
+  if (window.membraneRunGame) return;
   window.membraneRunGame = new Game();
 });
