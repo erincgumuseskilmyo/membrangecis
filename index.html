@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Membrane Run — Hücre Zarını Yönet</title>
+<meta name="description" content="Laborant ve Veteriner Sağlık önlisans öğrencileri için hücre zarı taşıma mekanizmaları eğitim oyunu." />
+<link rel="stylesheet" href="style.css?v=2" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ START SCREEN ============ -->
+  <section id="screen-start" class="screen active">
+    <div class="start-card">
+      <div class="card-tools">
+        <button id="btn-music-start" class="icon-btn music-toggle" aria-label="Müzik aç/kapat">♪</button>
+        <button id="btn-sound-start" class="icon-btn sound-toggle" aria-label="Ses aç/kapat">🔊</button>
+      </div>
+      <h1 class="game-title">MEMBRANE RUN</h1>
+      <p class="game-subtitle">HÜCRE ZARINI YÖNET</p>
+      <p class="game-desc">5 dakika boyunca hücre zarına gelen maddeleri doğru taşıma mekanizmalarıyla geçir.</p>
+
+      <div class="player-form">
+        <label>AD SOYAD
+          <input id="input-name" type="text" maxlength="40" placeholder="Ad Soyad" autocomplete="off" />
+        </label>
+        <label>ÖĞRENCİ NUMARASI
+          <input id="input-studentno" type="text" maxlength="20" placeholder="Öğrenci No" autocomplete="off" />
+        </label>
+      </div>
+
+      <div class="mode-select" role="group" aria-label="Oyun modu">
+        <button id="btn-mode-exam" class="mode-option is-active" type="button">
+          <span class="mode-option-title">DEĞERLENDİRME</span>
+          <span class="mode-option-desc">İpucu yok · skor tablosuna işlenir</span>
+        </button>
+        <button id="btn-mode-learn" class="mode-option" type="button">
+          <span class="mode-option-title">ÖĞRENME</span>
+          <span class="mode-option-desc">Doğru mekanizma ipucu · daha yavaş · tabloya işlenmez</span>
+        </button>
+      </div>
+
+      <div class="start-buttons">
+        <button id="btn-start" class="btn btn-primary">BAŞLA</button>
+        <button id="btn-howto" class="btn btn-secondary">NASIL OYNANIR</button>
+        <button id="btn-mechanisms" class="btn btn-secondary">MEKANİZMALAR</button>
+        <button id="btn-leaderboard" class="btn btn-secondary">SKOR TABLOSU</button>
+      </div>
+      <button id="btn-credits" class="link-btn" type="button">Görsel ve ses kaynakları</button>
+      <p id="asset-status" class="asset-status">Görseller ve sesler yükleniyor…</p>
+    </div>
+  </section>
+
+  <!-- ============ HOWTO MODAL ============ -->
+  <div id="modal-howto" class="modal hidden">
+    <div class="modal-card">
+      <h2>NASIL OYNANIR</h2>
+      <ol class="howto-list">
+        <li><span class="howto-key">◀ ▶</span> ile <strong>kanalı</strong> sağa/sola hareket ettir.</li>
+        <li><span class="howto-key">▲ ▼</span> ile <strong>taşıma mekanizmasını</strong> değiştir; ya da <span class="howto-key">1</span>–<span class="howto-key">6</span> tuşlarıyla / üstteki şeritten doğrudan seç.</li>
+        <li>Gelen maddenin <strong>doğru mekanizmasını</strong> seç.</li>
+        <li><strong>Kanalı</strong> maddenin hizasına getir.</li>
+        <li>5 dakikada <strong>en yüksek skoru</strong> yap.</li>
+      </ol>
+      <h3 class="sub-head">PUANLAMA</h3>
+      <ul class="howto-list plain">
+        <li>Pasif taşıma (difüzyon, kolaylaştırılmış difüzyon, osmoz): <strong>+20</strong></li>
+        <li>Aktif taşıma: <strong>+25</strong> ve <strong>−1 ATP</strong></li>
+        <li>Endositoz / Ekzositoz: <strong>+30</strong></li>
+        <li>Yanlış mekanizma: <strong>−10</strong> · Kaçırılan madde: <strong>−5</strong></li>
+        <li>5'li combo <strong>+50</strong> · 10'lu combo <strong>+100</strong></li>
+      </ul>
+      <p class="howto-note"><span class="howto-key">ESC</span> duraklatır. Sekme arka plana geçerse oyun kendiliğinden duraklar.</p>
+      <button class="btn btn-primary modal-close" data-close="modal-howto">ANLADIM</button>
+    </div>
+  </div>
+
+  <!-- ============ MECHANISMS MODAL ============ -->
+  <div id="modal-mechanisms" class="modal hidden">
+    <div class="modal-card">
+      <h2>TAŞIMA MEKANİZMALARI</h2>
+      <ul id="mechanism-list" class="mechanism-list"></ul>
+      <button class="btn btn-primary modal-close" data-close="modal-mechanisms">KAPAT</button>
+    </div>
+  </div>
+
+  <!-- ============ CREDITS MODAL ============ -->
+  <div id="modal-credits" class="modal hidden">
+    <div class="modal-card">
+      <h2>GÖRSEL VE SES KAYNAKLARI</h2>
+      <p class="credits-intro">
+        Bu oyundaki dış kaynaklı materyallerin tamamı kamu malı veya serbest
+        lisanslıdır. Aşağıdaki iki görsel CC BY-SA lisanslıdır ve atıf
+        gerektirir.
+      </p>
+      <ul class="credits-list">
+        <li><strong>Antikor</strong> (hücre ürünü) — “Antibody IgG1 surface”, Tokenzero, <em>CC BY-SA 4.0</em>, Wikimedia Commons</li>
+        <li><strong>Sodyum iyonu</strong> — “Sodium-ion-3D-vdW”, Ingvald Straume, <em>CC BY-SA 3.0</em>, Wikimedia Commons</li>
+        <li><strong>Su, oksijen, glukoz, steroid hormon, büyük protein</strong> — Benjah-bmm27 / Ben Mills, <em>kamu malı</em>, Wikimedia Commons</li>
+        <li><strong>Bakteri</strong> — NIH BioArt Source, NIAID / Ryan Kissinger, <em>kamu malı</em></li>
+        <li><strong>Ses efektleri</strong> — Kenney “Interface Sounds”, <em>CC0</em> (kenney.nl)</li>
+        <li><strong>Hücre zarı deseni, kanal çizimleri, arka plan müziği</strong> — bu proje için üretildi</li>
+      </ul>
+      <p class="credits-intro">
+        Ayrıntılı liste: depodaki <code>assets/CREDITS.md</code> dosyası.
+      </p>
+      <button class="btn btn-primary modal-close" data-close="modal-credits">KAPAT</button>
+    </div>
+  </div>
+
+  <!-- ============ LEADERBOARD MODAL ============ -->
+  <div id="modal-leaderboard" class="modal hidden">
+    <div class="modal-card">
+      <h2>🏆 MEMBRANE RUN<br />LİDERLİK TABLOSU</h2>
+      <p id="leaderboard-source" class="board-source"></p>
+      <p id="leaderboard-status" class="leaderboard-status hidden"></p>
+      <ol id="leaderboard-list" class="leaderboard-list"></ol>
+      <button class="btn btn-primary modal-close" data-close="modal-leaderboard">KAPAT</button>
+    </div>
+  </div>
+
+  <!-- ============ COUNTDOWN OVERLAY ============ -->
+  <div id="countdown-overlay" class="countdown-overlay hidden">
+    <div id="countdown-number" class="countdown-number">3</div>
+  </div>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <section id="screen-game" class="screen">
+    <div class="hud-top">
+      <div class="hud-item">
+        <span class="hud-label">SKOR</span>
+        <span id="hud-score" class="hud-value">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">ATP</span>
+        <span id="hud-atp" class="hud-value">20</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">COMBO</span>
+        <span id="hud-combo" class="hud-value">×0</span>
+      </div>
+      <div class="hud-item hud-time">
+        <span class="hud-label">SÜRE</span>
+        <span id="hud-time" class="hud-value">05:00</span>
+      </div>
+      <button id="btn-music-game" class="icon-btn music-toggle" aria-label="Müzik aç/kapat">♪</button>
+      <button id="btn-sound-game" class="icon-btn sound-toggle" aria-label="Ses aç/kapat">🔊</button>
+      <button id="btn-pause" class="icon-btn" aria-label="Duraklat">❚❚</button>
+    </div>
+
+    <!-- Mekanizma şeridi: altı mekanizma da hep görünür, doğrudan seçilebilir -->
+    <div id="mode-rail" class="mode-rail" role="group" aria-label="Taşıma mekanizması seçimi"></div>
+
+    <div class="hud-transport">
+      <span id="hud-transport-mode" class="hud-transport-mode">BASİT DİFÜZYON</span>
+      <span id="hud-transport-info" class="hud-transport-info">Zardan yardımsız, konsantrasyon farkıyla geçiş.</span>
+      <span id="hud-tier" class="hud-tier">KOLAY</span>
+    </div>
+
+    <div id="game-field" class="game-field">
+      <canvas id="game-canvas"></canvas>
+      <div id="toast-layer" class="toast-layer"></div>
+      <div id="learn-badge" class="learn-badge hidden">ÖĞRENME MODU</div>
+    </div>
+
+    <div id="mobile-controls" class="mobile-controls">
+      <div class="control-group control-left" aria-label="Kanal kontrolü">
+        <button id="btn-left" class="ctrl-btn" aria-label="Kanalı sola hareket ettir">◀</button>
+        <span class="control-caption">KANAL</span>
+        <button id="btn-right" class="ctrl-btn" aria-label="Kanalı sağa hareket ettir">▶</button>
+      </div>
+      <div class="control-group control-right" aria-label="Taşıma mekanizması kontrolü">
+        <button id="btn-up" class="ctrl-btn" aria-label="Önceki taşıma mekanizması">▲</button>
+        <span class="control-caption">TAŞIMA</span>
+        <button id="btn-down" class="ctrl-btn" aria-label="Sonraki taşıma mekanizması">▼</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAUSE OVERLAY ============ -->
+  <div id="screen-pause" class="modal hidden">
+    <div class="modal-card">
+      <h2>OYUN DURAKLATILDI</h2>
+      <button id="btn-resume" class="btn btn-primary">DEVAM ET</button>
+      <button id="btn-quit" class="btn btn-secondary">ANA MENÜ</button>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS SCREEN ============ -->
+  <section id="screen-results" class="screen">
+    <div class="results-card">
+      <h2 class="game-subtitle" style="color:var(--membrane-gold); letter-spacing:1px;">MEMBRANE RUN TAMAMLANDI!</h2>
+      <p id="res-mode-note" class="mode-note hidden"></p>
+      <div class="results-grid">
+        <div class="result-item wide">
+          <span class="result-label">TOPLAM SKOR</span>
+          <span id="res-score" class="result-value">0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">DOĞRU GEÇİŞ</span>
+          <span id="res-correct" class="result-value">0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">YANLIŞ GEÇİŞ</span>
+          <span id="res-wrong" class="result-value">0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">KAÇIRILAN MADDE</span>
+          <span id="res-missed" class="result-value">0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">İSABET ORANI</span>
+          <span id="res-accuracy" class="result-value">%0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">EN YÜKSEK COMBO</span>
+          <span id="res-combo" class="result-value">×0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">ATP HARCAMASI</span>
+          <span id="res-atp" class="result-value">0</span>
+        </div>
+        <div class="result-item wide">
+          <span class="result-label">TOPLAM SÜRE</span>
+          <span id="res-duration" class="result-value">05:00</span>
+        </div>
+      </div>
+
+      <h3 class="sub-head">MEKANİZMA DÖKÜMÜ</h3>
+      <ul id="res-breakdown" class="breakdown-list"></ul>
+      <p id="res-feedback" class="feedback-note hidden"></p>
+
+      <h3 class="sub-head board-head">
+        <span id="res-board-title">SKOR TABLOSU</span>
+        <button id="btn-board-refresh" class="mini-btn" type="button" aria-label="Skor tablosunu yenile">YENİLE</button>
+      </h3>
+      <p id="res-board-rank" class="board-rank hidden"></p>
+      <ol id="res-leaderboard" class="leaderboard-list compact"></ol>
+
+      <p id="results-online-status" class="leaderboard-status hidden"></p>
+      <div class="start-buttons">
+        <button id="btn-replay" class="btn btn-primary">TEKRAR OYNA</button>
+        <button id="btn-view-leaderboard" class="btn btn-secondary">SKOR TABLOSU</button>
+        <button id="btn-menu" class="btn btn-secondary">ANA MENÜ</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/config.js?v=2"></script>
+<script src="js/assets.js?v=2"></script>
+<script src="js/audio.js?v=2"></script>
+<script src="js/timer.js?v=2"></script>
+<script src="js/transport.js?v=2"></script>
+<script src="js/particle.js?v=2"></script>
+<script src="js/player.js?v=2"></script>
+<script src="js/score.js?v=2"></script>
+<script src="js/leaderboard.js?v=2"></script>
+<script src="js/ui.js?v=2"></script>
+<script src="js/game.js?v=2"></script>
+</body>
+</html>

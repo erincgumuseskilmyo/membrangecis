@@ -1,0 +1,12 @@
+{
+  "name": "membrane-run",
+  "version": "1.0.0",
+  "description": "Membrane Run - Hucre Zarini Yonet: fizyoloji egitim oyunu",
+  "private": true,
+  "scripts": {
+    "test": "node test/smoke.js"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}

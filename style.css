@@ -1,0 +1,1311 @@
+/* ============================================================
+   MEMBRANE RUN — STYLE.CSS
+   Tasarım dili: laboratuvar / hücre biyolojisi temalı, modern,
+   temiz, semi-flat. Fotogerçekçi değil, çocuksu değil.
+
+   Token sistemi:
+   - Zemin: derin hücre-içi teal/lacivert gradyanı
+   - Zar: sıcak amber/altın fosfolipid çift katmanı
+   - Mekanizma renkleri: transport.js ile birebir eşleşir
+============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Renk tokenları */
+  --bg-deep: #0a1c2b;
+  --bg-mid: #0f2b40;
+  --bg-cell: #123049;
+  --membrane-gold: #e8a33d;
+  --membrane-gold-dark: #b97429;
+  --ink-100: #f4f8fb;
+  --ink-60: rgba(244, 248, 251, 0.62);
+  --ink-40: rgba(244, 248, 251, 0.4);
+  --panel: rgba(12, 32, 48, 0.82);
+  --panel-border: rgba(232, 163, 61, 0.28);
+  --success: #48d8b0;
+  --error: #ff6b6b;
+  --warn: #f6c945;
+
+  --c-simple: #4fd1c5;
+  --c-facilitated: #9f7aea;
+  --c-osmosis: #4299e1;
+  --c-active: #f6ad55;
+  --c-endo: #f687b3;
+  --c-exo: #fc8181;
+
+  --font-display: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(120% 120% at 50% -10%, var(--bg-mid) 0%, var(--bg-deep) 60%);
+  color: var(--ink-100);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ---------- Start / Results shared card look ---------- */
+
+.start-card,
+.results-card {
+  margin: auto;
+  width: min(92vw, 460px);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px 26px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  backdrop-filter: blur(6px);
+  position: relative;
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(28px, 7vw, 40px);
+  letter-spacing: 1px;
+  margin: 6px 0 0;
+  background: linear-gradient(90deg, var(--membrane-gold), #ffd98a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.game-subtitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 3px;
+  font-size: 13px;
+  color: var(--c-osmosis);
+  margin: 4px 0 18px;
+}
+
+.game-desc {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-60);
+  margin: 0 0 22px;
+}
+
+.player-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.player-form label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--ink-40);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.player-form input {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(244, 248, 251, 0.14);
+  background: rgba(244, 248, 251, 0.06);
+  color: var(--ink-100);
+  outline: none;
+}
+
+.player-form input:focus {
+  border-color: var(--membrane-gold);
+}
+
+.start-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: 0.6px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--membrane-gold), #d98a2a);
+  color: #1a1000;
+  box-shadow: 0 6px 18px rgba(232, 163, 61, 0.35);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.06);
+}
+
+.btn-secondary {
+  background: rgba(244, 248, 251, 0.08);
+  color: var(--ink-100);
+  border: 1px solid rgba(244, 248, 251, 0.16);
+}
+
+.btn-secondary:hover {
+  background: rgba(244, 248, 251, 0.14);
+}
+
+.icon-btn {
+  border: 1px solid rgba(244, 248, 251, 0.16);
+  background: rgba(244, 248, 251, 0.08);
+  color: var(--ink-100);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sound-toggle.is-muted {
+  color: var(--ink-40);
+}
+
+#btn-sound-start {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+/* ---------- Modals ---------- */
+
+.modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 14, 22, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-card {
+  width: min(94vw, 440px);
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: 26px 24px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.modal-card h2 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+  line-height: 1.3;
+}
+
+.howto-list {
+  text-align: left;
+  padding-left: 20px;
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-60);
+}
+
+.howto-list li strong {
+  color: var(--ink-100);
+}
+
+.howto-key {
+  display: inline-block;
+  background: rgba(244, 248, 251, 0.1);
+  border: 1px solid rgba(244, 248, 251, 0.18);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.leaderboard-status {
+  font-size: 12.5px;
+  color: var(--warn);
+  background: rgba(246, 201, 69, 0.1);
+  border: 1px solid rgba(246, 201, 69, 0.25);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.leaderboard-status.ok {
+  display: none;
+}
+
+.leaderboard-list {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.leaderboard-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(244, 248, 251, 0.05);
+  font-size: 14px;
+}
+
+.leaderboard-list li .rank {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--membrane-gold);
+  width: 22px;
+}
+
+.leaderboard-list li .lb-name {
+  flex: 1;
+  color: var(--ink-100);
+}
+
+.leaderboard-list li .lb-score {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--success);
+}
+
+.leaderboard-empty {
+  color: var(--ink-40);
+  font-size: 13.5px;
+  padding: 10px 0 18px;
+}
+
+/* ---------- Countdown ---------- */
+
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 14, 22, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.countdown-overlay.hidden {
+  display: none;
+}
+
+.countdown-number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 110px;
+  color: var(--membrane-gold);
+  text-shadow: 0 0 40px rgba(232, 163, 61, 0.6);
+  animation: countdownPop 0.9s ease;
+}
+
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Game screen ---------- */
+
+#screen-game {
+  padding: 10px 10px 0;
+  gap: 8px;
+}
+
+.hud-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 8px 10px;
+  flex-wrap: nowrap;
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0 6px;
+}
+
+.hud-item.hud-time {
+  margin-left: auto;
+  align-items: flex-end;
+}
+
+.hud-label {
+  font-size: 9.5px;
+  letter-spacing: 1px;
+  color: var(--ink-40);
+  font-weight: 600;
+}
+
+.hud-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+#hud-time.warning {
+  color: var(--error);
+  animation: pulseWarn 1s infinite;
+}
+
+@keyframes pulseWarn {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.hud-transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(244, 248, 251, 0.05);
+  border: 1px solid rgba(244, 248, 251, 0.1);
+  border-radius: 12px;
+  padding: 7px 10px;
+}
+
+.hud-transport-label {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--ink-40);
+  font-weight: 700;
+}
+
+.hud-transport-mode {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  transition: color 0.15s ease;
+}
+
+.game-field {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0d2438 0%, #0a1c2b 55%, #0a1826 100%);
+  border: 1px solid rgba(244, 248, 251, 0.08);
+}
+
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.toast-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.toast {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+  animation: toastFloat 0.9s ease forwards;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.toast.correct {
+  background: rgba(72, 216, 176, 0.16);
+  color: var(--success);
+  border: 1px solid rgba(72, 216, 176, 0.4);
+}
+
+.toast.wrong {
+  background: rgba(255, 107, 107, 0.16);
+  color: var(--error);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.toast.atp {
+  background: rgba(246, 173, 85, 0.16);
+  color: var(--c-active);
+  border: 1px solid rgba(246, 173, 85, 0.4);
+}
+
+.toast.missed {
+  background: rgba(244, 248, 251, 0.1);
+  color: var(--ink-60);
+  border: 1px solid rgba(244, 248, 251, 0.2);
+}
+
+.toast.combo {
+  background: rgba(232, 163, 61, 0.18);
+  color: var(--membrane-gold);
+  border: 1px solid rgba(232, 163, 61, 0.45);
+  font-size: 17px;
+}
+
+@keyframes toastFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.85);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -60%) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -95%) scale(0.96);
+  }
+}
+
+/* ---------- Mobile controls ---------- */
+
+.mobile-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 6px calc(12px + env(safe-area-inset-bottom));
+  gap: 12px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  padding: 10px 12px;
+}
+
+.control-right {
+  flex-direction: column;
+}
+
+.control-caption {
+  font-family: var(--font-display);
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  color: var(--ink-40);
+  font-weight: 700;
+}
+
+.ctrl-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  border: 1px solid rgba(244, 248, 251, 0.18);
+  background: rgba(244, 248, 251, 0.09);
+  color: var(--ink-100);
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.ctrl-btn:active,
+.ctrl-btn.pressed {
+  background: var(--membrane-gold);
+  color: #1a1000;
+  transform: scale(0.94);
+}
+
+/* Desktop: hide big touch controls, rely on keyboard */
+@media (hover: hover) and (pointer: fine) {
+  .mobile-controls {
+    opacity: 0.55;
+  }
+}
+
+/* ---------- Pause ---------- */
+
+#screen-pause .modal-card {
+  width: min(90vw, 340px);
+}
+
+#screen-pause .btn {
+  margin-top: 10px;
+}
+
+/* ---------- Results ---------- */
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px 0;
+  text-align: left;
+}
+
+.results-grid .result-item {
+  background: rgba(244, 248, 251, 0.05);
+  border: 1px solid rgba(244, 248, 251, 0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.results-grid .result-item.wide {
+  grid-column: 1 / -1;
+}
+
+.result-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink-40);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.result-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+}
+
+/* ---------- Utility ---------- */
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 380px) {
+  .ctrl-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 19px;
+  }
+  .game-title {
+    font-size: 26px;
+  }
+}
+
+/* ============================================================
+   EK BİLEŞENLER
+   (mekanizma şeridi, oyun modu seçimi, sonuç dökümü, rozetler)
+============================================================ */
+
+/* ---------- Başlangıç kartı üst araç butonları ---------- */
+
+.card-tools {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+#btn-sound-start {
+  position: static;
+}
+
+.music-toggle {
+  font-size: 17px;
+}
+
+.icon-btn.is-muted {
+  color: var(--ink-40);
+  background: rgba(244, 248, 251, 0.04);
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: progress;
+  filter: grayscale(0.5);
+}
+
+.asset-status {
+  font-size: 11.5px;
+  color: var(--ink-40);
+  margin: 12px 0 0;
+  letter-spacing: 0.3px;
+}
+
+/* ---------- Oyun modu seçimi ---------- */
+
+.mode-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.mode-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(244, 248, 251, 0.14);
+  background: rgba(244, 248, 251, 0.05);
+  color: var(--ink-60);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.mode-option.is-active {
+  border-color: var(--membrane-gold);
+  background: rgba(232, 163, 61, 0.12);
+  color: var(--ink-100);
+}
+
+.mode-option-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.mode-option-desc {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--ink-40);
+}
+
+.mode-option.is-active .mode-option-desc {
+  color: var(--ink-60);
+}
+
+/* ---------- Mekanizma şeridi (oyun ekranı) ---------- */
+
+.mode-rail {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.mode-chip {
+  --chip-color: var(--ink-60);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 5px 2px;
+  border-radius: 10px;
+  border: 1px solid rgba(244, 248, 251, 0.12);
+  background: rgba(244, 248, 251, 0.04);
+  color: var(--ink-40);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.mode-chip .chip-key {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--chip-color);
+  opacity: 0.75;
+}
+
+.mode-chip .chip-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 8.5px;
+  letter-spacing: 0.2px;
+  line-height: 1.1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.mode-chip.is-active {
+  background: color-mix(in srgb, var(--chip-color) 22%, transparent);
+  border-color: var(--chip-color);
+  color: var(--chip-color);
+  box-shadow: 0 0 0 1px var(--chip-color) inset, 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.mode-chip.is-active .chip-key {
+  opacity: 1;
+}
+
+/* color-mix desteklemeyen tarayıcılar için yedek */
+@supports not (background: color-mix(in srgb, red 20%, transparent)) {
+  .mode-chip.is-active {
+    background: rgba(244, 248, 251, 0.14);
+  }
+}
+
+/* ---------- Aktif mekanizma satırı ---------- */
+
+.hud-transport {
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  position: relative;
+}
+
+.hud-transport-mode {
+  font-size: 13px;
+}
+
+.hud-transport-info {
+  font-size: 10.5px;
+  color: var(--ink-40);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.hud-tier {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  color: var(--warn);
+  background: rgba(246, 201, 69, 0.12);
+  border: 1px solid rgba(246, 201, 69, 0.28);
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.hud-value.low {
+  color: var(--error);
+}
+
+.hud-value.hot {
+  color: var(--membrane-gold);
+}
+
+/* ---------- Oyun alanı rozet ve flaşları ---------- */
+
+.learn-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: var(--c-osmosis);
+  background: rgba(66, 153, 225, 0.14);
+  border: 1px solid rgba(66, 153, 225, 0.4);
+  border-radius: 8px;
+  padding: 3px 8px;
+  pointer-events: none;
+}
+
+.game-field.flash-wrong::after,
+.game-field.flash-correct::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: fieldFlash 0.4s ease forwards;
+}
+
+.game-field.flash-wrong::after {
+  box-shadow: inset 0 0 60px 6px rgba(255, 107, 107, 0.55);
+}
+
+.game-field.flash-correct::after {
+  box-shadow: inset 0 0 60px 6px rgba(72, 216, 176, 0.45);
+}
+
+@keyframes fieldFlash {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Nasıl oynanır / mekanizmalar modalı ---------- */
+
+.sub-head {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: var(--ink-40);
+  margin: 18px 0 10px;
+  text-align: left;
+}
+
+.howto-list.plain {
+  list-style: none;
+  padding-left: 0;
+}
+
+.howto-note {
+  font-size: 12px;
+  color: var(--ink-40);
+  text-align: left;
+  margin: 0 0 18px;
+  line-height: 1.6;
+}
+
+.mechanism-list {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.mechanism-item {
+  --chip-color: var(--ink-60);
+  border-left: 3px solid var(--chip-color);
+  background: rgba(244, 248, 251, 0.05);
+  border-radius: 0 10px 10px 0;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mechanism-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mechanism-key {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--chip-color);
+  border: 1px solid var(--chip-color);
+  border-radius: 5px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.mechanism-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--chip-color);
+  flex: 1;
+  line-height: 1.25;
+}
+
+.mechanism-energy {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--ink-40);
+  border: 1px solid rgba(244, 248, 251, 0.16);
+  border-radius: 6px;
+  padding: 1px 5px;
+  flex: none;
+}
+
+.mechanism-info {
+  font-size: 12px;
+  color: var(--ink-60);
+  line-height: 1.45;
+}
+
+.mechanism-subs {
+  font-size: 11px;
+  color: var(--ink-40);
+  line-height: 1.45;
+}
+
+/* ---------- Sonuç ekranı dökümü ---------- */
+
+.breakdown-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-item {
+  --chip-color: var(--ink-60);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.bd-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.4px;
+  color: var(--chip-color);
+  width: 92px;
+  flex: none;
+  text-align: left;
+}
+
+.bd-bar {
+  flex: 1;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(244, 248, 251, 0.08);
+  overflow: hidden;
+}
+
+.bd-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--chip-color);
+}
+
+.bd-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--ink-60);
+  width: 40px;
+  flex: none;
+  text-align: right;
+}
+
+.feedback-note {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-100);
+  background: rgba(66, 153, 225, 0.1);
+  border: 1px solid rgba(66, 153, 225, 0.28);
+  border-radius: 10px;
+  padding: 9px 11px;
+  margin: 0 0 14px;
+  text-align: left;
+}
+
+.mode-note {
+  font-size: 11.5px;
+  color: var(--c-osmosis);
+  margin: -6px 0 10px;
+  letter-spacing: 0.3px;
+}
+
+/* ---------- Dar / kısa ekran uyumu ---------- */
+
+@media (max-height: 700px) {
+  .hud-transport-info {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .mode-chip .chip-name {
+    font-size: 7.5px;
+  }
+  .bd-name {
+    width: 74px;
+    font-size: 8.5px;
+  }
+}
+
+/* ---------- Geniş ekran: oyunu arcade oranında ortala ---------- */
+
+@media (min-width: 820px) {
+  #screen-game {
+    padding: 12px 12px 0;
+  }
+  #screen-game > * {
+    width: 100%;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Fare + klavye varsa büyük dokunmatik butonlar yer kaplamasın */
+@media (hover: hover) and (pointer: fine) {
+  .mobile-controls {
+    opacity: 0.5;
+    padding: 8px 6px;
+    gap: 8px;
+  }
+  .control-group {
+    padding: 6px 8px;
+    gap: 6px;
+    border-radius: 14px;
+  }
+  .control-right {
+    flex-direction: row;
+  }
+  .ctrl-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    font-size: 15px;
+  }
+  .control-caption {
+    font-size: 8.5px;
+  }
+  .mobile-controls:hover {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   ORTAK SKOR TABLOSU
+============================================================ */
+
+.board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mini-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ink-60);
+  background: rgba(244, 248, 251, 0.07);
+  border: 1px solid rgba(244, 248, 251, 0.16);
+  border-radius: 8px;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+
+.mini-btn:hover {
+  background: rgba(244, 248, 251, 0.14);
+  color: var(--ink-100);
+}
+
+.board-source {
+  font-size: 11.5px;
+  letter-spacing: 0.3px;
+  color: var(--ink-40);
+  margin: -8px 0 14px;
+}
+
+.board-source.is-online {
+  color: var(--success);
+}
+
+.board-rank {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--membrane-gold);
+  background: rgba(232, 163, 61, 0.1);
+  border: 1px solid rgba(232, 163, 61, 0.25);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0 0 10px;
+  text-align: left;
+}
+
+.leaderboard-list.compact li {
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+.leaderboard-list li .lb-acc {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-40);
+  flex: none;
+}
+
+.leaderboard-list li.podium .rank {
+  color: var(--membrane-gold);
+}
+
+.leaderboard-list li.podium-1 {
+  background: rgba(232, 163, 61, 0.14);
+  border: 1px solid rgba(232, 163, 61, 0.3);
+}
+
+.leaderboard-list li.podium-2,
+.leaderboard-list li.podium-3 {
+  background: rgba(244, 248, 251, 0.08);
+}
+
+.leaderboard-list li.is-me {
+  outline: 1px solid var(--c-osmosis);
+  background: rgba(66, 153, 225, 0.16);
+}
+
+.leaderboard-list li.is-me .lb-name::after {
+  content: ' (sen)';
+  color: var(--c-osmosis);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* ---------- Kaynak / telif ---------- */
+
+.link-btn {
+  display: inline-block;
+  margin: 14px auto 0;
+  background: none;
+  border: none;
+  color: var(--ink-40);
+  font-size: 11.5px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: var(--ink-100);
+}
+
+.credits-intro {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-60);
+  text-align: left;
+  margin: 0 0 12px;
+}
+
+.credits-intro code {
+  font-size: 11px;
+  background: rgba(244, 248, 251, 0.08);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.credits-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.credits-list li {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-60);
+  border-left: 2px solid var(--panel-border);
+  padding-left: 10px;
+}
+
+.credits-list li strong {
+  color: var(--ink-100);
+}
+
+.credits-list li em {
+  color: var(--warn);
+  font-style: normal;
+  font-weight: 600;
+}
